@@ -3,7 +3,8 @@ import * as core from '../__fixtures__/core.js'
 
 jest.unstable_mockModule('@actions/core', () => core)
 
-const mockUploader = {
+// Create a shared mock instance
+const createMockUploader = () => ({
   upload: jest.fn<
     () => Promise<{
       fileId?: string
@@ -11,10 +12,12 @@ const mockUploader = {
       uploadedFiles: Array<{ path: string; id: string; name: string }>
     }>
   >()
-}
+})
+
+let currentMockUploader = createMockUploader()
 
 jest.unstable_mockModule('../src/uploader.js', () => ({
-  Uploader: jest.fn(() => mockUploader)
+  Uploader: jest.fn(() => currentMockUploader)
 }))
 
 const { run } = await import('../src/main.js')
@@ -22,7 +25,8 @@ const { run } = await import('../src/main.js')
 describe('main.ts', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUploader.upload.mockClear()
+    // Create a fresh mock for each test
+    currentMockUploader = createMockUploader()
   })
 
   afterEach(() => {
@@ -58,11 +62,11 @@ describe('main.ts', () => {
       ]
     }
 
-    mockUploader.upload.mockResolvedValue(mockUploadResult)
+    currentMockUploader.upload.mockResolvedValue(mockUploadResult)
 
     await run()
 
-    expect(mockUploader.upload).toHaveBeenCalledWith(
+    expect(currentMockUploader.upload).toHaveBeenCalledWith(
       '/path/to/file.txt',
       'folder-123',
       '',
@@ -113,11 +117,11 @@ describe('main.ts', () => {
       ]
     }
 
-    mockUploader.upload.mockResolvedValue(mockUploadResult)
+    currentMockUploader.upload.mockResolvedValue(mockUploadResult)
 
     await run()
 
-    expect(mockUploader.upload).toHaveBeenCalledWith(
+    expect(currentMockUploader.upload).toHaveBeenCalledWith(
       '/path/to/folder',
       'folder-123',
       'custom-folder-name',
