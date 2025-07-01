@@ -63,11 +63,11 @@ on:
 jobs:
   upload:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Upload file to Google Drive
         uses: your-username/google-drive-uploader-action@v1
         with:
@@ -102,20 +102,20 @@ jobs:
 
 ## Inputs
 
-| Input | Description | Required | Default |
-|-------|-------------|----------|---------|
-| `credentials` | Base64 encoded Service Account credentials JSON | Yes | - |
-| `parent-folder-id` | Google Drive folder ID for uploads | Yes | - |
-| `path` | Path to file or folder to upload | Yes | - |
-| `name` | Optional name for the uploaded file/folder | No | Original name |
-| `overwrite` | Overwrite existing files with same name | No | `false` |
+| Input              | Description                                     | Required | Default       |
+| ------------------ | ----------------------------------------------- | -------- | ------------- |
+| `credentials`      | Base64 encoded Service Account credentials JSON | Yes      | -             |
+| `parent-folder-id` | Google Drive folder ID for uploads              | Yes      | -             |
+| `path`             | Path to file or folder to upload                | Yes      | -             |
+| `name`             | Optional name for the uploaded file/folder      | No       | Original name |
+| `overwrite`        | Overwrite existing files with same name         | No       | `false`       |
 
 ## Outputs
 
-| Output | Description |
-|--------|-------------|
-| `file-id` | Google Drive file ID (single file uploads) |
-| `folder-id` | Google Drive folder ID (folder uploads) |
+| Output           | Description                                           |
+| ---------------- | ----------------------------------------------------- |
+| `file-id`        | Google Drive file ID (single file uploads)            |
+| `folder-id`      | Google Drive folder ID (folder uploads)               |
 | `uploaded-files` | JSON array of uploaded files with their IDs and paths |
 
 ## Setting up Secrets
@@ -128,10 +128,11 @@ jobs:
 
 2. Add the following secrets to your repository:
    - `GOOGLE_DRIVE_CREDENTIALS`: The base64 encoded service account key
-   - `GOOGLE_DRIVE_FOLDER_ID`: The ID of your Google Drive folder
-   To get the folder ID:
+   - `GOOGLE_DRIVE_FOLDER_ID`: The ID of your Google Drive folder To get the
+     folder ID:
    - Open the folder in Google Drive
-   - The URL will look like: `https://drive.google.com/drive/folders/YOUR_FOLDER_ID`
+   - The URL will look like:
+     `https://drive.google.com/drive/folders/YOUR_FOLDER_ID`
    - Copy the `YOUR_FOLDER_ID` part
 
 ## Advanced Usage
@@ -146,7 +147,7 @@ jobs:
     credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
     parent-folder-id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
     path: ./output
-    
+
 - name: Process results
   run: |
     echo "Uploaded files:"
@@ -158,7 +159,7 @@ jobs:
 ```yaml
 - name: Build project
   run: npm run build
-  
+
 - name: Upload build artifacts if successful
   if: success()
   uses: your-username/google-drive-uploader-action@v1
@@ -204,5 +205,5 @@ INPUT_OVERWRITE=false
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE)
-file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
