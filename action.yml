@@ -1,23 +1,39 @@
-name: The name of your action here
-description: Provide a description here
+name: Google Drive Uploader
+description: Upload files or folders to Google Drive
 author: Your name or organization here
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: upload-cloud
+  color: blue
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
+  credentials:
+    description: Google Service Account credentials JSON (base64 encoded)
     required: true
-    default: '1000'
+  parent-folder-id:
+    description: Google Drive folder ID where files will be uploaded
+    required: true
+  path:
+    description: Path to file or folder to upload
+    required: true
+  name:
+    description:
+      Optional name for the uploaded file/folder (defaults to original name)
+    required: false
+  overwrite:
+    description: Whether to overwrite existing files with the same name
+    required: false
+    default: 'false'
 
-# Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  file-id:
+    description:
+      Google Drive file ID of the uploaded file (for single file uploads)
+  folder-id:
+    description:
+      Google Drive folder ID of the uploaded folder (for folder uploads)
+  uploaded-files:
+    description: JSON array of uploaded files with their IDs and paths
 
 runs:
   using: node20

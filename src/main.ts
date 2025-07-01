@@ -1,27 +1,66 @@
 import * as core from '@actions/core'
-import { wait } from './wait.js'
+import { Uploader } from './uploader.js'
 
-/**
- * The main function for the action.
- *
- * @returns Resolves when the action is complete.
- */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    // Get inputs
+    const credentials = core.getInput('credentials', { required: true })
+    const parentFolderId = core.getInput('parent-folder-id', {
+      required: true
+    })
+    const targetPath = core.getInput('path', { required: true })
+    const customName = core.getInput('name')
+    const overwrite = core.getBooleanInput('overwrite')
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    // Validate inputs
+    if (!credentials) {
+      throw new Error('Google Drive credentials are required')
+    }
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    if (!parentFolderId) {
+      throw new Error('Parent folder ID is required')
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    if (!targetPath) {
+      throw new Error('Path to upload is required')
+    }
+
+    core.info(`Starting upload to Google Drive...`)
+    core.info(`Target path: ${targetPath}`)
+    core.info(`Parent folder ID: ${parentFolderId}`)
+    if (customName) {
+      core.info(`Custom name: ${customName}`)
+    }
+    core.info(`Overwrite: ${overwrite}`)
+
+    // Create uploader and perform upload
+    const uploader = new Uploader(credentials)
+    const result = await uploader.upload(
+      targetPath,
+      parentFolderId,
+      customName,
+      overwrite
+    )
+
+    // Set outputs
+    if (result.fileId) {
+      core.setOutput('file-id', result.fileId)
+    }
+
+    if (result.folderId) {
+      core.setOutput('folder-id', result.folderId)
+    }
+
+    core.setOutput('uploaded-files', JSON.stringify(result.uploadedFiles))
+
+    core.info(
+      `Upload completed successfully. ${result.uploadedFiles.length} file(s) uploaded.`
+    )
   } catch (error) {
-    // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    } else {
+      core.setFailed('An unknown error occurred')
+    }
   }
 }
