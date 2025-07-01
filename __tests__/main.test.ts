@@ -16,9 +16,15 @@ const createMockUploader = () => ({
 
 let currentMockUploader = createMockUploader()
 
-jest.unstable_mockModule('../src/uploader.js', () => ({
-  Uploader: jest.fn(() => currentMockUploader)
-}))
+jest.unstable_mockModule('../src/uploader.js', () => {
+  return {
+    Uploader: class MockUploader {
+      constructor() {
+        Object.assign(this, currentMockUploader)
+      }
+    }
+  }
+})
 
 const { run } = await import('../src/main.js')
 
@@ -99,7 +105,9 @@ describe('main.ts', () => {
       }
     })
 
-    core.getBooleanInput.mockReturnValue(true)
+    core.getBooleanInput.mockImplementation((name: string) => {
+      return name === 'overwrite'
+    })
 
     const mockUploadResult = {
       folderId: 'folder-xyz789',

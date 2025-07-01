@@ -3,11 +3,12 @@ name: Example - Upload to Google Drive
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   upload-file:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout
@@ -23,8 +24,6 @@ jobs:
 
   upload-folder:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout
