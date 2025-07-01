@@ -53,12 +53,19 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
+      - name: Create test file
+        run: echo "Test content" > test-file.txt
+
       - name: Test Local Action
         id: test-action
         uses: ./
         with:
-          milliseconds: 2000
+          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS || 'ZHVtbXktY3JlZGVudGlhbHM=' }}
+          parent-folder-id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID || 'dummy-folder-id' }}
+          path: test-file.txt
 
       - name: Print Output
         id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+        run: |
+          echo "File ID: ${{ steps.test-action.outputs.file-id }}"
+          echo "Uploaded files: ${{ steps.test-action.outputs.uploaded-files }}"
