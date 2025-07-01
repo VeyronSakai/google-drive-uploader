@@ -1,4 +1,6 @@
 import { jest } from '@jest/globals'
+import type { Stats } from 'fs'
+import type { Globber } from '@actions/glob'
 
 jest.unstable_mockModule('fs', () => ({
   promises: {
@@ -11,11 +13,13 @@ jest.unstable_mockModule('@actions/glob', () => ({
   create: jest.fn()
 }))
 
+const mockGoogleDriveService = {
+  uploadFile: jest.fn<() => Promise<string>>(),
+  createFolder: jest.fn<() => Promise<string>>()
+}
+
 jest.unstable_mockModule('../src/google-drive-service.js', () => ({
-  GoogleDriveService: jest.fn().mockImplementation(() => ({
-    uploadFile: jest.fn(),
-    createFolder: jest.fn()
-  }))
+  GoogleDriveService: jest.fn(() => mockGoogleDriveService)
 }))
 
 const fs = await import('fs')
@@ -33,20 +37,9 @@ describe('Uploader', () => {
     mockStat.mockResolvedValue({
       isDirectory: () => false,
       isFile: () => true
-    })
+    } as unknown as Stats)
 
-    const { GoogleDriveService } = await import(
-      '../src/google-drive-service.js'
-    )
-    const mockUploadFile = jest.fn().mockResolvedValue('file-123')
-    ;(
-      GoogleDriveService as unknown as jest.MockedClass<
-        typeof GoogleDriveService
-      >
-    ).mockImplementation(() => ({
-      uploadFile: mockUploadFile,
-      createFolder: jest.fn()
-    }))
+    mockGoogleDriveService.uploadFile.mockResolvedValue('file-123')
 
     const { Uploader: UploaderClass } = await import('../src/uploader.js')
     const uploader = new UploaderClass('fake-credentials')
@@ -75,37 +68,25 @@ describe('Uploader', () => {
       .mockResolvedValueOnce({
         isDirectory: () => true,
         isFile: () => false
-      })
+      } as unknown as Stats)
       .mockResolvedValue({
         isDirectory: () => false,
         isFile: () => true
-      })
+      } as unknown as Stats)
 
     const mockGlobber = {
       glob: jest
-        .fn()
+        .fn<() => Promise<string[]>>()
         .mockResolvedValue(['/folder/file1.txt', '/folder/file2.txt'])
-    }
+    } as unknown as Globber
     ;(glob.create as jest.MockedFunction<typeof glob.create>).mockResolvedValue(
       mockGlobber
     )
 
-    const { GoogleDriveService } = await import(
-      '../src/google-drive-service.js'
-    )
-    const mockCreateFolder = jest.fn().mockResolvedValue('folder-123')
-    const mockUploadFile = jest
-      .fn()
+    mockGoogleDriveService.createFolder.mockResolvedValue('folder-123')
+    mockGoogleDriveService.uploadFile
       .mockResolvedValueOnce('file-1')
       .mockResolvedValueOnce('file-2')
-    ;(
-      GoogleDriveService as unknown as jest.MockedClass<
-        typeof GoogleDriveService
-      >
-    ).mockImplementation(() => ({
-      uploadFile: mockUploadFile,
-      createFolder: mockCreateFolder
-    }))
 
     const { Uploader: UploaderClass } = await import('../src/uploader.js')
     const uploader = new UploaderClass('fake-credentials')

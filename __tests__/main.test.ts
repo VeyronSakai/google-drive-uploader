@@ -2,18 +2,21 @@ import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
 
 jest.unstable_mockModule('@actions/core', () => core)
+
+const mockUploader = {
+  upload: jest.fn<() => Promise<{ fileId?: string; folderId?: string; uploadedFiles: Array<{ path: string; id: string; name: string }> }>>()
+}
+
 jest.unstable_mockModule('../src/uploader.js', () => ({
-  Uploader: jest.fn().mockImplementation(() => ({
-    upload: jest.fn()
-  }))
+  Uploader: jest.fn(() => mockUploader)
 }))
 
 const { run } = await import('../src/main.js')
-const { Uploader } = await import('../src/uploader.js')
 
 describe('main.ts', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUploader.upload.mockClear()
   })
 
   afterEach(() => {
@@ -49,16 +52,11 @@ describe('main.ts', () => {
       ]
     }
 
-    const mockUpload = jest.fn().mockResolvedValue(mockUploadResult)
-    ;(Uploader as jest.MockedFunction<typeof Uploader>).mockImplementation(
-      () => ({
-        upload: mockUpload
-      })
-    )
+    mockUploader.upload.mockResolvedValue(mockUploadResult)
 
     await run()
 
-    expect(mockUpload).toHaveBeenCalledWith(
+    expect(mockUploader.upload).toHaveBeenCalledWith(
       '/path/to/file.txt',
       'folder-123',
       '',
@@ -109,16 +107,11 @@ describe('main.ts', () => {
       ]
     }
 
-    const mockUpload = jest.fn().mockResolvedValue(mockUploadResult)
-    ;(Uploader as jest.MockedFunction<typeof Uploader>).mockImplementation(
-      () => ({
-        upload: mockUpload
-      })
-    )
+    mockUploader.upload.mockResolvedValue(mockUploadResult)
 
     await run()
 
-    expect(mockUpload).toHaveBeenCalledWith(
+    expect(mockUploader.upload).toHaveBeenCalledWith(
       '/path/to/folder',
       'folder-123',
       'custom-folder-name',
