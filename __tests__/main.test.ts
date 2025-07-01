@@ -4,7 +4,13 @@ import * as core from '../__fixtures__/core.js'
 jest.unstable_mockModule('@actions/core', () => core)
 
 const mockUploader = {
-  upload: jest.fn<() => Promise<{ fileId?: string; folderId?: string; uploadedFiles: Array<{ path: string; id: string; name: string }> }>>()
+  upload: jest.fn<
+    () => Promise<{
+      fileId?: string
+      folderId?: string
+      uploadedFiles: Array<{ path: string; id: string; name: string }>
+    }>
+  >()
 }
 
 jest.unstable_mockModule('../src/uploader.js', () => ({
