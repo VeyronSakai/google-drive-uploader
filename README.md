@@ -104,31 +104,31 @@ jobs:
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
-| `credentials` | Base64 encoded Google Service Account credentials JSON | Yes | - |
-| `parent-folder-id` | Google Drive folder ID where files will be uploaded | Yes | - |
+| `credentials` | Base64 encoded Service Account credentials JSON | Yes | - |
+| `parent-folder-id` | Google Drive folder ID for uploads | Yes | - |
 | `path` | Path to file or folder to upload | Yes | - |
 | `name` | Optional name for the uploaded file/folder | No | Original name |
-| `overwrite` | Whether to overwrite existing files with the same name | No | `false` |
+| `overwrite` | Overwrite existing files with same name | No | `false` |
 
 ## Outputs
 
 | Output | Description |
 |--------|-------------|
-| `file-id` | Google Drive file ID of the uploaded file (for single file uploads) |
-| `folder-id` | Google Drive folder ID of the uploaded folder (for folder uploads) |
+| `file-id` | Google Drive file ID (single file uploads) |
+| `folder-id` | Google Drive folder ID (folder uploads) |
 | `uploaded-files` | JSON array of uploaded files with their IDs and paths |
 
 ## Setting up Secrets
 
 1. Encode your Service Account JSON key to base64:
+
    ```bash
    base64 -i path/to/your-service-account-key.json
    ```
-   
+
 2. Add the following secrets to your repository:
    - `GOOGLE_DRIVE_CREDENTIALS`: The base64 encoded service account key
    - `GOOGLE_DRIVE_FOLDER_ID`: The ID of your Google Drive folder
-   
    To get the folder ID:
    - Open the folder in Google Drive
    - The URL will look like: `https://drive.google.com/drive/folders/YOUR_FOLDER_ID`
@@ -204,4 +204,5 @@ INPUT_OVERWRITE=false
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE)
+file for details.
