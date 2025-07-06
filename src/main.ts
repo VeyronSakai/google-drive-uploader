@@ -15,13 +15,16 @@ export async function run(): Promise<void> {
 
     // Validate required inputs
     if (!credentials) {
-      throw new Error('Google Drive credentials are required')
+      core.setFailed('Google Drive credentials are required')
+      return
     }
     if (!parentFolderId) {
-      throw new Error('Parent folder ID is required')
+      core.setFailed('Parent folder ID is required')
+      return
     }
     if (!targetPath) {
-      throw new Error('Path to upload is required')
+      core.setFailed('Path to upload is required')
+      return
     }
 
     core.info(`Starting upload to Google Drive...`)
