@@ -2,7 +2,7 @@ import { google, drive_v3 } from 'googleapis'
 
 export class GoogleDriveService {
   private drive: drive_v3.Drive | null
-  private dryRun: boolean
+  private readonly dryRun: boolean
 
   constructor(credentials: string, dryRun = false) {
     this.dryRun = dryRun
