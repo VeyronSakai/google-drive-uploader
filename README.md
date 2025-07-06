@@ -1,9 +1,9 @@
 # Google Drive Uploader Action
 
-[![GitHub Super-Linter](https://github.com/actions/typescript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/actions/typescript-action/actions/workflows/ci.yml/badge.svg)
-[![Check dist/](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml)
-[![CodeQL](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml)
+[![GitHub Super-Linter](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/linter.yml/badge.svg)](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/linter.yml)
+![CI](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/ci.yml/badge.svg)
+[![Check dist/](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/check-dist.yml/badge.svg)](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/check-dist.yml)
+[![CodeQL](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
 A GitHub Action to upload files or folders to Google Drive.
