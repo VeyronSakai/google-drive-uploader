@@ -63,7 +63,7 @@ jobs:
         id: test-file-upload
         uses: ./
         with:
-          credentials: ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc= # Base64 encoded dummy string
+          credentials: ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc= # gitleaks:allow - Base64 encoded dummy string
           parent-folder-id: dummy-folder-id-12345
           path: ./test-file.txt
           name: test-upload.txt
@@ -74,7 +74,7 @@ jobs:
         id: test-folder-upload
         uses: ./
         with:
-          credentials: ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc= # Base64 encoded dummy string
+          credentials: ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc= # gitleaks:allow - Base64 encoded dummy string
           parent-folder-id: dummy-folder-id-12345
           path: ./test-folder
           dry-run: 'true'

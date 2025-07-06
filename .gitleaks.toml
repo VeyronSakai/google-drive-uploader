@@ -1,14 +1,18 @@
-[allowlist]
-  description = "Allowlist for test credentials"
-  
-  [[allowlist.regexes]]
-  regex = '''ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc='''
-  description = "Base64 encoded dummy test credentials for CI dry-run testing"
-  
-  [[allowlist.regexes]]
-  regex = '''dummy-folder-id-\d+'''
-  description = "Dummy folder IDs for testing"
+# Gitleaks configuration for Google Drive Uploader Action
 
+[allowlist]
+  description = "Global allowlist"
+  
+  # Allowlist the entire CI workflow file since it only contains test data
   [[allowlist.paths]]
-  regex = '''\.github/workflows/ci\.yml'''
   description = "CI workflow file contains test credentials for dry-run mode"
+  regex = '''\.github/workflows/ci\.yml$'''
+  
+  # Allowlist specific test patterns
+  [[allowlist.regexes]]
+  description = "Base64 encoded dummy test credentials"
+  regex = '''ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc='''
+  
+  [[allowlist.regexes]]
+  description = "Dummy credentials pattern"
+  regex = '''dummy-.*-[0-9]+'''
