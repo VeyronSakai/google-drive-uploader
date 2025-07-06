@@ -1,0 +1,14 @@
+[allowlist]
+  description = "Allowlist for test credentials"
+  
+  [[allowlist.regexes]]
+  regex = '''ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc='''
+  description = "Base64 encoded dummy test credentials for CI dry-run testing"
+  
+  [[allowlist.regexes]]
+  regex = '''dummy-folder-id-\d+'''
+  description = "Dummy folder IDs for testing"
+
+  [[allowlist.paths]]
+  regex = '''\.github/workflows/ci\.yml'''
+  description = "CI workflow file contains test credentials for dry-run mode"
