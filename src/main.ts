@@ -13,6 +13,17 @@ export async function run(): Promise<void> {
     const overwrite = core.getBooleanInput('overwrite')
     const dryRun = core.getBooleanInput('dry-run')
 
+    // Validate required inputs
+    if (!credentials) {
+      throw new Error('Google Drive credentials are required')
+    }
+    if (!parentFolderId) {
+      throw new Error('Parent folder ID is required')
+    }
+    if (!targetPath) {
+      throw new Error('Path to upload is required')
+    }
+
     core.info(`Starting upload to Google Drive...`)
     core.info(`Target path: ${targetPath}`)
     core.info(`Parent folder ID: ${parentFolderId}`)
