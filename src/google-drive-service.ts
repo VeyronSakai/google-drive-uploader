@@ -76,6 +76,15 @@ export class GoogleDriveService {
       return `dry-run-folder-${Date.now()}`
     }
 
+    // Check if folder already exists
+    const existingFolder = await this.findFolderByName(
+      folderName,
+      parentFolderId
+    )
+    if (existingFolder) {
+      return existingFolder.id!
+    }
+
     const fileMetadata: drive_v3.Schema$File = {
       name: folderName,
       mimeType: 'application/vnd.google-apps.folder',
@@ -130,5 +139,26 @@ export class GoogleDriveService {
         body: fileContent
       }
     })
+  }
+
+  private async findFolderByName(
+    folderName: string,
+    parentFolderId: string
+  ): Promise<drive_v3.Schema$File | null> {
+    if (this.dryRun) {
+      console.log(
+        `[DRY RUN] Would search for folder: ${folderName} in parent: ${parentFolderId}`
+      )
+      return null
+    }
+
+    const query = `name='${folderName}' and '${parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`
+    const response = await this.drive!.files.list({
+      q: query,
+      fields: 'files(id, name)',
+      spaces: 'drive'
+    })
+
+    return response.data.files?.[0] || null
   }
 }
