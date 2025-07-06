@@ -8,8 +8,19 @@ branding:
 
 inputs:
   credentials:
-    description: Google Service Account credentials JSON (base64 encoded)
-    required: true
+    description:
+      Google Service Account credentials JSON (base64 encoded). Not required
+      when using Workload Identity
+    required: false
+  workload-identity-provider:
+    description:
+      Workload Identity Provider (e.g.,
+      projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider)
+    required: false
+  service-account:
+    description:
+      Service Account email to impersonate when using Workload Identity
+    required: false
   parent-folder-id:
     description: Google Drive folder ID where files will be uploaded
     required: true

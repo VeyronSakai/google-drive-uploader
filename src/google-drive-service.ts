@@ -1,21 +1,51 @@
 import { google, drive_v3 } from 'googleapis'
+import { GoogleAuth } from 'google-auth-library'
+
+export interface GoogleDriveServiceOptions {
+  credentials?: string
+  workloadIdentityProvider?: string
+  serviceAccount?: string
+  dryRun?: boolean
+}
 
 export class GoogleDriveService {
   private drive: drive_v3.Drive | null
   private readonly dryRun: boolean
 
-  constructor(credentials: string, dryRun = false) {
-    this.dryRun = dryRun
+  constructor(options: GoogleDriveServiceOptions) {
+    this.dryRun = options.dryRun || false
 
-    if (!dryRun) {
-      const credentialsJson = JSON.parse(
-        Buffer.from(credentials, 'base64').toString('utf-8')
-      )
+    if (!this.dryRun) {
+      let auth: GoogleAuth
 
-      const auth = new google.auth.GoogleAuth({
-        credentials: credentialsJson,
-        scopes: ['https://www.googleapis.com/auth/drive.file']
-      })
+      if (options.credentials) {
+        // Use service account credentials
+        const credentialsJson = JSON.parse(
+          Buffer.from(options.credentials, 'base64').toString('utf-8')
+        )
+
+        auth = new google.auth.GoogleAuth({
+          credentials: credentialsJson,
+          scopes: ['https://www.googleapis.com/auth/drive.file']
+        })
+      } else if (options.workloadIdentityProvider && options.serviceAccount) {
+        // Use Workload Identity Federation
+        auth = new GoogleAuth({
+          scopes: ['https://www.googleapis.com/auth/drive.file'],
+          // The GoogleAuth library will automatically use the environment variables:
+          // GOOGLE_APPLICATION_CREDENTIALS or
+          // Workload Identity metadata when running in a GitHub Actions environment
+          projectId: 'auto',
+          // For Workload Identity, we need to specify the service account to impersonate
+          clientOptions: {
+            subject: options.serviceAccount
+          }
+        })
+      } else {
+        throw new Error(
+          'Either credentials or workload identity configuration must be provided'
+        )
+      }
 
       this.drive = google.drive({ version: 'v3', auth })
     } else {

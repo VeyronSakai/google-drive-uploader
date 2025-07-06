@@ -15,11 +15,18 @@ export interface UploadResult {
   }>
 }
 
+export interface UploaderOptions {
+  credentials?: string
+  workloadIdentityProvider?: string
+  serviceAccount?: string
+  dryRun?: boolean
+}
+
 export class Uploader {
   private driveService: GoogleDriveService
 
-  constructor(credentials: string, dryRun = false) {
-    this.driveService = new GoogleDriveService(credentials, dryRun)
+  constructor(options: UploaderOptions) {
+    this.driveService = new GoogleDriveService(options)
   }
 
   async upload(

@@ -4,7 +4,9 @@ import { Uploader } from './uploader.js'
 export async function run(): Promise<void> {
   try {
     // Get inputs
-    const credentials = core.getInput('credentials', { required: true })
+    const credentials = core.getInput('credentials')
+    const workloadIdentityProvider = core.getInput('workload-identity-provider')
+    const serviceAccount = core.getInput('service-account')
     const parentFolderId = core.getInput('parent-folder-id', {
       required: true
     })
@@ -13,9 +15,11 @@ export async function run(): Promise<void> {
     const overwrite = core.getBooleanInput('overwrite')
     const dryRun = core.getBooleanInput('dry-run')
 
-    // Validate required inputs
-    if (!credentials) {
-      core.setFailed('Google Drive credentials are required')
+    // Validate authentication inputs
+    if (!credentials && (!workloadIdentityProvider || !serviceAccount)) {
+      core.setFailed(
+        'Either credentials or both workload-identity-provider and service-account are required'
+      )
       return
     }
     if (!parentFolderId) {
@@ -37,7 +41,12 @@ export async function run(): Promise<void> {
     core.info(`Dry run: ${dryRun}`)
 
     // Create uploader and perform upload
-    const uploader = new Uploader(credentials, dryRun)
+    const uploader = new Uploader({
+      credentials,
+      workloadIdentityProvider,
+      serviceAccount,
+      dryRun
+    })
     const result = await uploader.upload(
       targetPath,
       parentFolderId,

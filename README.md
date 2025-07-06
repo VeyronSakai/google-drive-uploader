@@ -16,6 +16,7 @@ A GitHub Action to upload files or folders to Google Drive.
 - Optional file overwriting
 - Custom naming for uploaded files/folders
 - Service account authentication
+- Workload Identity Federation support for secure keyless authentication
 - Outputs file/folder IDs for further processing
 
 ## Prerequisites
@@ -52,7 +53,9 @@ A GitHub Action to upload files or folders to Google Drive.
 
 ## Usage
 
-### Basic Example
+### Basic Example (Service Account Key)
+
+Using traditional service account key authentication:
 
 ```yaml
 name: CI
@@ -113,16 +116,53 @@ jobs:
     dry-run: 'true'
 ```
 
+### Using Workload Identity Federation
+
+For enhanced security without managing service account keys:
+
+```yaml
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write # Required for Workload Identity
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Upload to Google Drive
+        uses: your-username/google-drive-uploader-action@v1
+        with:
+          workload-identity-provider: ${{ secrets.WIF_PROVIDER }}
+          service-account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          parent-folder-id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          path: ./report.pdf
+```
+
 ## Inputs
 
-| Input              | Description                                     | Required | Default       |
-| ------------------ | ----------------------------------------------- | -------- | ------------- |
-| `credentials`      | Base64 encoded Service Account credentials JSON | Yes      | -             |
-| `parent-folder-id` | Google Drive folder ID for uploads              | Yes      | -             |
-| `path`             | Path to file or folder to upload                | Yes      | -             |
-| `name`             | Optional name for the uploaded file/folder      | No       | Original name |
-| `overwrite`        | Overwrite existing files with same name         | No       | `false`       |
-| `dry-run`          | Simulate upload without actually uploading      | No       | `false`       |
+| Input                        | Description                                                       | Required | Default       |
+| ---------------------------- | ----------------------------------------------------------------- | -------- | ------------- |
+| `credentials`                | Base64 encoded Service Account credentials JSON                   | No\*     | -             |
+| `workload-identity-provider` | Workload Identity Provider                                        | No\*     | -             |
+| `service-account`            | Service Account email to impersonate when using Workload Identity | No\*     | -             |
+| `parent-folder-id`           | Google Drive folder ID for uploads                                | Yes      | -             |
+| `path`                       | Path to file or folder to upload                                  | Yes      | -             |
+| `name`                       | Optional name for the uploaded file/folder                        | No       | Original name |
+| `overwrite`                  | Overwrite existing files with same name                           | No       | `false`       |
+| `dry-run`                    | Simulate upload without actually uploading                        | No       | `false`       |
+
+\*Either `credentials` OR both `workload-identity-provider` and
+`service-account` must be provided.
 
 ## Outputs
 
