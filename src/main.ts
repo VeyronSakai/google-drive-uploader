@@ -11,6 +11,7 @@ export async function run(): Promise<void> {
     const targetPath = core.getInput('path', { required: true })
     const customName = core.getInput('name')
     const overwrite = core.getBooleanInput('overwrite')
+    const dryRun = core.getBooleanInput('dry-run')
 
     // Validate inputs
     if (!credentials) {
@@ -32,9 +33,10 @@ export async function run(): Promise<void> {
       core.info(`Custom name: ${customName}`)
     }
     core.info(`Overwrite: ${overwrite}`)
+    core.info(`Dry run: ${dryRun}`)
 
     // Create uploader and perform upload
-    const uploader = new Uploader(credentials)
+    const uploader = new Uploader(credentials, dryRun)
     const result = await uploader.upload(
       targetPath,
       parentFolderId,

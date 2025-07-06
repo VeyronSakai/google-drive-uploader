@@ -54,7 +54,7 @@ A GitHub Action to upload files or folders to Google Drive.
 ### Basic Example
 
 ```yaml
-name: Upload to Google Drive
+name: CI
 
 on:
   push:
@@ -100,6 +100,18 @@ jobs:
     overwrite: 'true'
 ```
 
+### Dry Run Mode
+
+```yaml
+- name: Test upload without actually uploading
+  uses: your-username/google-drive-uploader-action@v1
+  with:
+    credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+    parent-folder-id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+    path: ./dist
+    dry-run: 'true'
+```
+
 ## Inputs
 
 | Input              | Description                                     | Required | Default       |
@@ -109,6 +121,7 @@ jobs:
 | `path`             | Path to file or folder to upload                | Yes      | -             |
 | `name`             | Optional name for the uploaded file/folder      | No       | Original name |
 | `overwrite`        | Overwrite existing files with same name         | No       | `false`       |
+| `dry-run`          | Simulate upload without actually uploading      | No       | `false`       |
 
 ## Outputs
 

@@ -17,8 +17,8 @@ export interface UploadResult {
 export class Uploader {
   private driveService: GoogleDriveService
 
-  constructor(credentials: string) {
-    this.driveService = new GoogleDriveService(credentials)
+  constructor(credentials: string, dryRun = false) {
+    this.driveService = new GoogleDriveService(credentials, dryRun)
   }
 
   async upload(

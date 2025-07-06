@@ -1,19 +1,26 @@
 import { google, drive_v3 } from 'googleapis'
 
 export class GoogleDriveService {
-  private drive: drive_v3.Drive
+  private drive: drive_v3.Drive | null
+  private dryRun: boolean
 
-  constructor(credentials: string) {
-    const credentialsJson = JSON.parse(
-      Buffer.from(credentials, 'base64').toString('utf-8')
-    )
+  constructor(credentials: string, dryRun = false) {
+    this.dryRun = dryRun
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: credentialsJson,
-      scopes: ['https://www.googleapis.com/auth/drive.file']
-    })
+    if (!dryRun) {
+      const credentialsJson = JSON.parse(
+        Buffer.from(credentials, 'base64').toString('utf-8')
+      )
 
-    this.drive = google.drive({ version: 'v3', auth })
+      const auth = new google.auth.GoogleAuth({
+        credentials: credentialsJson,
+        scopes: ['https://www.googleapis.com/auth/drive.file']
+      })
+
+      this.drive = google.drive({ version: 'v3', auth })
+    } else {
+      this.drive = null
+    }
   }
 
   async uploadFile(
@@ -24,6 +31,13 @@ export class GoogleDriveService {
     fileContent: Buffer | NodeJS.ReadableStream,
     overwrite = false
   ): Promise<string> {
+    if (this.dryRun) {
+      console.log(
+        `[DRY RUN] Would upload file: ${fileName} to folder: ${parentFolderId}`
+      )
+      return `dry-run-file-${Date.now()}`
+    }
+
     if (overwrite) {
       const existingFile = await this.findFileByName(fileName, parentFolderId)
       if (existingFile) {
@@ -42,7 +56,7 @@ export class GoogleDriveService {
       body: fileContent
     }
 
-    const response = await this.drive.files.create({
+    const response = await this.drive!.files.create({
       requestBody: fileMetadata,
       media,
       fields: 'id'
@@ -55,13 +69,20 @@ export class GoogleDriveService {
     folderName: string,
     parentFolderId: string
   ): Promise<string> {
+    if (this.dryRun) {
+      console.log(
+        `[DRY RUN] Would create folder: ${folderName} in parent: ${parentFolderId}`
+      )
+      return `dry-run-folder-${Date.now()}`
+    }
+
     const fileMetadata: drive_v3.Schema$File = {
       name: folderName,
       mimeType: 'application/vnd.google-apps.folder',
       parents: [parentFolderId]
     }
 
-    const response = await this.drive.files.create({
+    const response = await this.drive!.files.create({
       requestBody: fileMetadata,
       fields: 'id'
     })
@@ -73,8 +94,15 @@ export class GoogleDriveService {
     fileName: string,
     parentFolderId: string
   ): Promise<drive_v3.Schema$File | null> {
+    if (this.dryRun) {
+      console.log(
+        `[DRY RUN] Would search for file: ${fileName} in parent: ${parentFolderId}`
+      )
+      return null
+    }
+
     const query = `name='${fileName}' and '${parentFolderId}' in parents and trashed=false`
-    const response = await this.drive.files.list({
+    const response = await this.drive!.files.list({
       q: query,
       fields: 'files(id, name)',
       spaces: 'drive'
@@ -88,7 +116,12 @@ export class GoogleDriveService {
     fileName: string,
     fileContent: Buffer | NodeJS.ReadableStream
   ): Promise<void> {
-    await this.drive.files.update({
+    if (this.dryRun) {
+      console.log(`[DRY RUN] Would update file: ${fileName} with id: ${fileId}`)
+      return
+    }
+
+    await this.drive!.files.update({
       fileId,
       requestBody: {
         name: fileName
