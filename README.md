@@ -5,6 +5,7 @@
 [![Check dist/](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/check-dist.yml/badge.svg)](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/check-dist.yml)
 [![CodeQL](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
+[![Licensed](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/licensed.yml/badge.svg)](https://github.com/VeyronSakai/google-drive-uploader/actions/workflows/licensed.yml)
 
 A GitHub Action to upload files or folders to Google Drive.
 
