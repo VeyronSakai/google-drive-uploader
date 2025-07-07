@@ -1,27 +1,78 @@
 import * as core from '@actions/core'
-import { wait } from './wait.js'
+import { Uploader } from './uploader.js'
 
-/**
- * The main function for the action.
- *
- * @returns Resolves when the action is complete.
- */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    // Get inputs
+    const credentials = core.getInput('credentials')
+    const workloadIdentityProvider = core.getInput('workload-identity-provider')
+    const serviceAccount = core.getInput('service-account')
+    const parentFolderId = core.getInput('parent-folder-id', {
+      required: true
+    })
+    const targetPath = core.getInput('path', { required: true })
+    const customName = core.getInput('name')
+    const overwrite = core.getBooleanInput('overwrite')
+    const dryRun = core.getBooleanInput('dry-run')
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    // Validate authentication inputs
+    if (!credentials && (!workloadIdentityProvider || !serviceAccount)) {
+      core.setFailed(
+        'Either credentials or both workload-identity-provider and service-account are required'
+      )
+      return
+    }
+    if (!parentFolderId) {
+      core.setFailed('Parent folder ID is required')
+      return
+    }
+    if (!targetPath) {
+      core.setFailed('Path to upload is required')
+      return
+    }
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    core.info(`Starting upload to Google Drive...`)
+    core.info(`Target path: ${targetPath}`)
+    core.info(`Parent folder ID: ${parentFolderId}`)
+    if (customName) {
+      core.info(`Custom name: ${customName}`)
+    }
+    core.info(`Overwrite: ${overwrite}`)
+    core.info(`Dry run: ${dryRun}`)
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    // Create uploader and perform upload
+    const uploader = new Uploader({
+      credentials,
+      workloadIdentityProvider,
+      serviceAccount,
+      dryRun
+    })
+    const result = await uploader.upload(
+      targetPath,
+      parentFolderId,
+      customName,
+      overwrite
+    )
+
+    // Set outputs
+    if (result.fileId) {
+      core.setOutput('file-id', result.fileId)
+    }
+
+    if (result.folderId) {
+      core.setOutput('folder-id', result.folderId)
+    }
+
+    core.setOutput('uploaded-files', JSON.stringify(result.uploadedFiles))
+
+    core.info(
+      `Upload completed successfully. ${result.uploadedFiles.length} file(s) uploaded.`
+    )
   } catch (error) {
-    // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    } else {
+      core.setFailed('An unknown error occurred')
+    }
   }
 }
