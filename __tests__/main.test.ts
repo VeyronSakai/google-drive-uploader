@@ -156,7 +156,7 @@ describe('main.ts', () => {
     await run()
 
     expect(core.setFailed).toHaveBeenCalledWith(
-      'Google Drive credentials are required'
+      'Either credentials or both workload-identity-provider and service-account are required'
     )
   })
 
