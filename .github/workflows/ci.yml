@@ -53,12 +53,34 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Test Local Action
-        id: test-action
+      - name: Create test file
+        run: |
+          echo "This is a test file" > test-file.txt
+          mkdir -p test-folder
+          echo "File in folder" > test-folder/nested-file.txt
+
+      - name: Test Single File Upload (Dry Run)
+        id: test-file-upload
         uses: ./
         with:
-          milliseconds: 2000
+          credentials: ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc= # gitleaks:allow - Base64 encoded dummy string
+          parent-folder-id: dummy-folder-id-12345
+          path: ./test-file.txt
+          name: test-upload.txt
+          overwrite: 'true'
+          dry-run: 'true'
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+      - name: Test Folder Upload (Dry Run)
+        id: test-folder-upload
+        uses: ./
+        with:
+          credentials: ZHVtbXktY3JlZGVudGlhbHMtZm9yLXRlc3Rpbmc= # gitleaks:allow - Base64 encoded dummy string
+          parent-folder-id: dummy-folder-id-12345
+          path: ./test-folder
+          dry-run: 'true'
+
+      - name: Verify outputs
+        run: |
+          echo "File upload output: ${{ steps.test-file-upload.outputs.file-id }}"
+          echo "Folder upload output: ${{ steps.test-folder-upload.outputs.folder-id }}"
+          echo "Uploaded files: ${{ steps.test-folder-upload.outputs.uploaded-files }}"
